@@ -65,6 +65,8 @@ def game(background):
         char1.fight(char2)
         p1.join()
         p2.join()
+        if not char1.alive or not char2.alive:
+            draw_text(screen_width/2, screen_height/2, "GAME OVER", (255, 255, 255))
 
         pygame.display.update()
         clock.tick(24)  # FPS
