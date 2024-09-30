@@ -25,7 +25,7 @@ def create_char(i, x, y, key):
     run_attack = sprite_list(sprite_sheet_run_attack, 6, frame_width, frame_height)
     squat_attack = sprite_list(sprite_sheet_squat_attack, 6, frame_width, frame_height)
     walk_attack = sprite_list(sprite_sheet_walk_attack, 6, frame_width, frame_height)
-    death = sprite_list(sprite_sheet_die, 8, frame_width, frame_height)
+    death = sprite_list(sprite_sheet_die, 9, frame_width, frame_height)
 
     sprite = Character(x, y, key, attack, run, jump, idle, run_attack, squat_attack, walk_attack, death)
     return sprite
@@ -118,9 +118,9 @@ class Character(pygame.sprite.Sprite):
             else:
                 self.update_image(self.idle_frame, self.idle_counter)
                 self.idle_counter = update_counter(self.idle_counter, 3)
-        elif self.death_counter < 7:
+        elif self.death_counter < 9:
             self.update_image(self.death, self.death_counter)
-            self.death_counter = update_counter(self.death_counter, 7)
+            self.death_counter += 1
             pygame.time.delay(100)
         else:
             self.alive = False
@@ -128,7 +128,7 @@ class Character(pygame.sprite.Sprite):
     def fight(self, char2):
         key = pygame.key.get_pressed()
         if self.rect.colliderect(char2.rect):
-            if key[pygame.K_j] or key[pygame.K_s] and self.alive:
+            if (key[pygame.K_j] or key[pygame.K_s]) and self.alive:
                 char2.health -= self.base_atk
-            if key[pygame.K_KP1] or key[pygame.K_DOWN] and char2.alive:
+            if (key[pygame.K_KP1] or key[pygame.K_DOWN]) and char2.alive:
                 self.health -= char2.base_atk
