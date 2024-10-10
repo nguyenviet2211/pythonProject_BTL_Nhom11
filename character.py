@@ -5,15 +5,19 @@ def sprite_list(sprite, n, width, height):
     return [pygame.transform.scale(sprite.subsurface((i * width, 0), (width, height)), (126, 126)) for i in range(n)]
 
 
+def image(Image):
+    return pygame.image.load(Image)
+
+
 def create_char(i, x, y, key):
-    sprite_sheet_attack = pygame.image.load(f'Data/character/char{i}/Attack1.png')
-    sprite_sheet_run = pygame.image.load(f'Data/character/char{i}/run.png')
-    sprite_sheet_jump = pygame.image.load(f'Data/character/char{i}/jump.png')
-    sprite_sheet_idle = pygame.image.load(f'Data/character/char{i}/idle.png')
-    sprite_sheet_run_attack = pygame.image.load(f'Data/character/char{i}/RunAttack1.png')
-    sprite_sheet_squat_attack = pygame.image.load(f'Data/character/char{i}/SquatAttack.png')
-    sprite_sheet_walk_attack = pygame.image.load(f'Data/character/char{i}/WalkAttack1.png')
-    sprite_sheet_die = pygame.image.load(f'Data/character/char{i}/Death.png')
+    sprite_sheet_attack = image(f'Data/character/char{i}/Attack1.png')
+    sprite_sheet_run = image(f'Data/character/char{i}/run.png')
+    sprite_sheet_jump = image(f'Data/character/char{i}/jump.png')
+    sprite_sheet_idle = image(f'Data/character/char{i}/idle.png')
+    sprite_sheet_run_attack = image(f'Data/character/char{i}/RunAttack1.png')
+    sprite_sheet_squat_attack = image(f'Data/character/char{i}/SquatAttack.png')
+    sprite_sheet_walk_attack = image(f'Data/character/char{i}/WalkAttack1.png')
+    sprite_sheet_die = image(f'Data/character/char{i}/Death.png')
 
     frame_width = 42
     frame_height = 42
@@ -82,7 +86,7 @@ class Character(pygame.sprite.Sprite):
         if key[self.key[1]]:
             self.rect.x = max(0, self.rect.x - dis)
             self.prev_key = self.key[1]
-        if key[self.key[2]]:
+        elif key[self.key[2]]:
             self.rect.x = min(1300 - 126, self.rect.x + dis)
             self.prev_key = self.key[2]
 
@@ -92,7 +96,7 @@ class Character(pygame.sprite.Sprite):
             # Jump
             if key[self.key[4]] or self.rect.y != 380:
                 self.update_image(self.jump_frame, self.jump_counter)
-                self.rect.y = 380 - self.jump_counter * (7 - self.jump_counter) * 10
+                self.rect.y = 380 - self.jump_counter * (7 - self.jump_counter) * 15
                 self.update_prev_key(key, 15)
                 self.jump_counter = update_counter(self.jump_counter, 7)
                 pygame.time.delay(25)
@@ -101,7 +105,6 @@ class Character(pygame.sprite.Sprite):
                 self.update_image(self.squat_frame, self.squat_counter)
                 self.update_prev_key(key, 15)
                 self.squat_counter = update_counter(self.squat_counter, 5)
-                pygame.time.delay(30)
             # run
             elif key[self.key[1]] or key[self.key[2]]:
                 if key[self.key[3]]:
@@ -121,13 +124,13 @@ class Character(pygame.sprite.Sprite):
         elif self.death_counter < 9:
             self.update_image(self.death, self.death_counter)
             self.death_counter += 1
-            pygame.time.delay(100)
+            pygame.time.delay(50)
         else:
             self.alive = False
 
     def fight(self, char2):
         key = pygame.key.get_pressed()
-        if self.rect.colliderect(char2.rect):
+        if pygame.sprite.collide_mask(self, char2):
             if (key[pygame.K_j] or key[pygame.K_s]) and self.alive:
                 char2.health -= self.base_atk
             if (key[pygame.K_KP1] or key[pygame.K_DOWN]) and char2.alive:

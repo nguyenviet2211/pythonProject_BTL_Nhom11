@@ -3,7 +3,6 @@ import character
 import threading
 import sys
 
-# Init
 pygame.init()
 pos = (0, 0)
 screen_width = 1300
