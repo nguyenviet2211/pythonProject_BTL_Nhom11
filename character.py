@@ -9,7 +9,7 @@ def image(Image):
     return pygame.image.load(Image)
 
 
-def create_char(i, x, y, key):
+def create_char(i, key, x, ground):
     sprite_sheet_attack = image(f'Data/character/char{i}/Attack1.png')
     sprite_sheet_run = image(f'Data/character/char{i}/run.png')
     sprite_sheet_jump = image(f'Data/character/char{i}/jump.png')
@@ -31,7 +31,7 @@ def create_char(i, x, y, key):
     walk_attack = sprite_list(sprite_sheet_walk_attack, 6, frame_width, frame_height)
     death = sprite_list(sprite_sheet_die, 9, frame_width, frame_height)
 
-    sprite = Character(x, y, key, attack, run, jump, idle, run_attack, squat_attack, walk_attack, death)
+    sprite = Character(key, x,  ground, attack, run, jump, idle, run_attack, squat_attack, walk_attack, death)
     return sprite
 
 
@@ -43,7 +43,7 @@ def update_counter(counter, num_frame) -> int:
 
 
 class Character(pygame.sprite.Sprite):
-    def __init__(self, x, y, key, *frame):
+    def __init__(self, key, x, ground,  *frame):
         super().__init__()
         # frame
         self.attack_frame = frame[0]
@@ -56,8 +56,6 @@ class Character(pygame.sprite.Sprite):
         self.death = frame[7]
         self.image = self.idle_frame[0]
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
         self.animation_speed = 4
         # counter
         self.attack_counter = 0
@@ -75,6 +73,9 @@ class Character(pygame.sprite.Sprite):
         self.mana = 30
         self.base_atk = 5
         self.alive = True
+        self.rect.x = x
+        self.rect.y = ground
+        self.ground = ground
 
     def update_image(self, frame, counter):
         if self.prev_key != self.key[1]:
@@ -94,9 +95,9 @@ class Character(pygame.sprite.Sprite):
         if self.health > 0:
             key = pygame.key.get_pressed()
             # Jump
-            if key[self.key[4]] or self.rect.y != 380:
+            if key[self.key[4]] or self.rect.y != self.ground:
                 self.update_image(self.jump_frame, self.jump_counter)
-                self.rect.y = 380 - self.jump_counter * (7 - self.jump_counter) * 15
+                self.rect.y = self.ground - self.jump_counter * (7 - self.jump_counter) * 15
                 self.update_prev_key(key, 15)
                 self.jump_counter = update_counter(self.jump_counter, 7)
                 pygame.time.delay(25)
@@ -126,6 +127,7 @@ class Character(pygame.sprite.Sprite):
             self.death_counter += 1
             pygame.time.delay(50)
         else:
+            self.kill()
             self.alive = False
 
     def fight(self, char2):
