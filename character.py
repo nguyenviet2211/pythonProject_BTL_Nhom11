@@ -10,11 +10,11 @@ def image(Image):
 
 
 def create_char(i, key, x, ground):
-    sprite_sheet_attack = image(f'Data/character/char{i}/Attack1.png')
+    sprite_sheet_attack = image(f'Data/character/char{i}/Attack2.png')
     sprite_sheet_run = image(f'Data/character/char{i}/run.png')
     sprite_sheet_jump = image(f'Data/character/char{i}/jump.png')
     sprite_sheet_idle = image(f'Data/character/char{i}/idle.png')
-    sprite_sheet_run_attack = image(f'Data/character/char{i}/RunAttack1.png')
+    sprite_sheet_run_attack = image(f'Data/character/char{i}/RunAttack2.png')
     sprite_sheet_squat_attack = image(f'Data/character/char{i}/SquatAttack.png')
     sprite_sheet_walk_attack = image(f'Data/character/char{i}/WalkAttack1.png')
     sprite_sheet_die = image(f'Data/character/char{i}/Death.png')
