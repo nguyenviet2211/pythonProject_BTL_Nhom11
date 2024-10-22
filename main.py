@@ -17,27 +17,33 @@ key_player_1 = [pygame.K_d, pygame.K_a, pygame.K_d, pygame.K_j, pygame.K_w, pyga
 key_player_2 = [pygame.K_LEFT, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_KP1, pygame.K_UP, pygame.K_DOWN]
 screen_width, screen_height = (pygame.display.get_desktop_sizes()[0][0] - 100,
                                pygame.display.get_desktop_sizes()[0][1] - 100)
-Background_info = [0.54, 0.75]
 screen = pygame.display.set_mode((screen_width, screen_height))
-
+rect1 = pygame.Rect(0, 0, 100, 100)
+rect2 = pygame.Rect(0, 0, 100, 100)
+rect_background = pygame.Rect(0, 0, 300, 150)
+rect1.center = (screen_width / 5, screen_height / 2)
+rect2.center = (screen_width / 5 * 4, screen_height / 2)
+rect_background.center = (screen_width / 2, screen_height / 2)
 
 # load data
 Background = [load_image(f"Data/Background/Background{i}.jpg", screen_width, screen_height) for i in range(2)]
-Background_2p_mode = [load_image(f"Data/Background/Background{i}.jpg", 300, 150) for i in range(2)]
+Map = [load_image(f"Data/Background/Background{i}.jpg", 300, 150) for i in range(2)]
+Map_info = [0.63, 0.8]
 Menu = load_image("Data/Background3.jpg", screen_width, screen_height)
 Button = load_image("Data/game_button/buttons-3.png", 200, 50)
-left_arrow = load_image("Data/game_button/buttons-4.png", 35, 50)
-right_arrow = load_image("Data/game_button/buttons-6.png", 35, 50)
-avatar_char = [load_image(f"Data/character/char{i}/avatar.png", 100, 100) for i in range(4)]
-name_character = ["monster", "rabbit", "snow man", "naruto"]
+right_arrow = load_image("Data/game_button/buttons-4.png", 35, 50)
+left_arrow = pygame.transform.flip(right_arrow, True, False)
+name_character = ["Monster", "Rabbit", "Snow man", "Naruto"]
 NumFrame = [
-    [6, 6, 8, 4, 6, 9],
-    [6, 6, 8, 4, 6, 9],
-    [6, 6, 8, 4, 6, 9],
-    [10, 6, 5, 6, 10, 6],
+    [6, 6, 8, 4, 9, 6],
+    [6, 6, 8, 4, 9, 6],
+    [6, 6, 8, 4, 9, 6],
+    [10, 6, 5, 6, 6, 10],
 ]
-idle_char = [character.sprite_list(pygame.image.load(f"Data/character/char{i}/idle.png"), NumFrame[i][3])
+idle_char = [character.frame_list(pygame.image.load(f"Data/character/char{i}/idle.png"), NumFrame[i][3], 126, 126)
              for i in range(4)]
+SkillCharacter1 = [character.Monster(0), character.Monster(1), character.Monster(2), character.Naruto(3)]
+SkillCharacter2 = [character.Monster(0), character.Monster(1), character.Monster(2), character.Naruto(3)]
 idle_count = [0 for i in range(4)]
 
 
@@ -53,6 +59,7 @@ def draw_text(x, y, Text, button=None, TextColor=(255, 255, 255), bg_color=None)
     text = Font.render(Text, True, TextColor)
     rect = textRect = text.get_rect()
     textRect.center = (x, y)
+
     if bg_color is not None:
         bg_rect = pygame.Rect(0, 0, 200, 40)
         bg_rect.center = (x, y)
@@ -74,10 +81,15 @@ def draw_health_bar(x, y, char):
     pygame.draw.rect(screen, (0, 255, 0), (x, y, char.health, 20))
 
 
-def draw_char(sprite, x, i, char):
+def draw_char(sprite, x, i, char, skill):
     sprite.update()
     sprite.draw(screen)
-    textRect = draw_text(x, 50, f"Player {i}", None, (255, 255, 255))
+    character.update_skill_frame(skill, char.rect.x, char.rect.y, char.prev_key == char.key[1])
+    screen.blit(skill.image, skill.rect)
+    if char.using_skill:
+        skill.skill_counter = 0
+
+    textRect = draw_text(x, 50, name_character[i], None, (255, 255, 255))
     draw_health_bar(x - textRect.width / 2, 90, char)
 
 
@@ -98,8 +110,8 @@ def draw_arrow():
 def menu():
     pygame.display.set_caption("2P game")
     color = [color1, color1, color1]
-
     Exit = False
+
     while not Exit:
         screen.blit(pygame.transform.scale(Menu, (screen_width, screen_height)), (0, 0))
         start_button = draw_text(screen_width / 2, screen_height / 2 - 60, "START", Button, color[0])
@@ -133,14 +145,9 @@ def menu():
 
 
 def _2p_mode():
-    rect1 = pygame.Rect(0, 0, 100, 100)
-    rect2 = pygame.Rect(0, 0, 100, 100)
-    rect_background = pygame.Rect(0, 0, 300, 150)
-    rect1.center = (screen_width / 5, screen_height / 2)
-    rect2.center = (screen_width / 5 * 4, screen_height / 2)
-    rect_background.center = (screen_width / 2, screen_height / 2)
     global x1, x2, x3
     Exit = False
+
     while not Exit:
         screen.fill((0, 0, 0))
         draw_text(screen_width / 2, screen_height / 4, "Map", None, color1)
@@ -152,17 +159,16 @@ def _2p_mode():
         screen.blits((
             (idle_char[x1][idle_count[x1]], rect1),
             (idle_char[x2][idle_count[x2]], rect2),
-            (Background_2p_mode[x3], rect_background))
+            (Map[x3], rect_background))
         )
+
         for even in pygame.event.get():
             if even.type == pygame.QUIT:
                 Exit = True
                 break
-
             if start.collidepoint(mouse):
                 if even.type == pygame.MOUSEBUTTONUP:
                     play_game(Background[x3])
-
             if even.type == pygame.MOUSEBUTTONDOWN:
                 if list_arrow[0].collidepoint(mouse):
                     x1 = (x1 + 3) % 4
@@ -179,35 +185,49 @@ def _2p_mode():
 
         idle_count[x1] = character.update_counter(idle_count[x1], NumFrame[x1][3])
         idle_count[x2] = character.update_counter(idle_count[x2], NumFrame[x2][3])
+
         clock.tick(12)
         pygame.display.update()
 
 
 def play_game(background):
     # load character
-    char1 = character.create_char(x1, key_player_1, 50, int(Background_info[x3] * screen_height), NumFrame[x1])
-    char2 = character.create_char(x2, key_player_2, screen_width - 150, int(Background_info[x3] * screen_height),
-                                  NumFrame[x2])
+    global SkillCharacter1, SkillCharacter2
+    char1 = character.create_char(x1, key_player_1, 50, int(Map_info[x3] * screen_height), NumFrame[x1],
+                                  screen_height//10)
+    char2 = character.create_char(x2, key_player_2, screen_width - 150, int(Map_info[x3] * screen_height),
+                                  NumFrame[x2], screen_height//10)
+    char_skill1 = SkillCharacter1[x1]
+    char_skill2 = SkillCharacter2[x2]
+
     Group1 = pygame.sprite.Group(char1)
     Group2 = pygame.sprite.Group(char2)
     e = False
+
     while not e:
         for even in pygame.event.get():
             if even.type == pygame.QUIT:
                 e = True
+
         screen.blit(pygame.transform.scale(background, (screen_width, screen_height)), (0, 0))
-        p1 = threading.Thread(target=draw_char(Group1, 100, 1, char1))
-        p2 = threading.Thread(target=draw_char(Group2, screen_width - 200, 2, char2))
+        p1 = threading.Thread(target=draw_char(Group1, 100, x1, char1, char_skill1))
+        p2 = threading.Thread(target=draw_char(Group2, screen_width - 200, x2, char2, char_skill2))
+        p3 = threading.Thread(target=character.fight(char1, char2, char_skill1, char_skill2))
         p1.start()
         p2.start()
+        p3.start()
         p1.join()
         p2.join()
-        char1.fight(char2)
+        p3.join()
+
         if not char1.alive or not char2.alive:
             screen.blit(black_blur, (0, 0))
             draw_text(screen_width / 2, screen_height / 2, "GAME OVER", None, (255, 255, 255))
+
         pygame.display.update()
         clock.tick(24)  # FPS
+    char_skill1.reset()
+    char_skill2.reset()
 
 
 if __name__ == '__main__':
