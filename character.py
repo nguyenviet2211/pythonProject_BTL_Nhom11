@@ -88,6 +88,7 @@ class Character(pygame.sprite.Sprite):
         self.num_frame = num_frame
         self.screenWidth = pygame.display.get_desktop_sizes()[0][0] - 226
         self.using_skill = False
+        # True quay sang trái, False quay sang phải
         self.direction = self.prev_key == self.key[0]
 
     """doi huong cua frame"""
@@ -141,7 +142,7 @@ class Character(pygame.sprite.Sprite):
 
     def update(self):
         if self.health > 0:
-            self.direction = self.prev_key == self.key[0]
+            self.direction = (self.prev_key == self.key[1])
             if len(self.queue_frame):
                 self.update_image(self.queue_frame, 0)
                 self.queue_frame.pop(0)
@@ -248,25 +249,26 @@ def update_skill_frame(Char_skill, x, y, direction):
 def collide_check(direction1, direction2, char1, char2):
     width = char1.rect.width
     height = char1.rect.height
-    punch_surface = pygame.Surface((width//5, height), pygame.SRCALPHA)
-    body_surface = pygame.Surface((width//1.2, height), pygame.SRCALPHA)
+
+    punch_surface = pygame.Surface((width//4, height), pygame.SRCALPHA)
+    body_surface = pygame.Surface((width//1.33, height), pygame.SRCALPHA)
     punch_x, punch_y = char1.rect.x, char1.rect.y
     body_x, body_y = char2.rect.x, char2.rect.y
+
     if direction1:
         punch_surface.blit(char1.image, (0, 0))
     else:
-        punch_surface.blit(char1.image, (-width//1.2, 0))
-        punch_x += width//1.2
+        punch_surface.blit(char1.image, (-width//1.33, 0))
+        punch_x += width//1.33
 
     if direction2:
-        body_surface.blit(char2.image, (-width//7, 0))
-        body_x += width//7
+        body_surface.blit(char2.image, (-width//4, 0))
+        body_x += width//4
     else:
         body_surface.blit(char2.image, (0, 0))
     mask_punch = pygame.mask.from_surface(punch_surface)
     mask_body = pygame.mask.from_surface(body_surface)
-    offset = (punch_x - body_x, punch_y - body_y)
-
+    offset = (body_x - punch_x, body_y - punch_y)
     return mask_punch.overlap(mask_body, offset)
 
 

@@ -17,7 +17,7 @@ key_player_1 = [pygame.K_d, pygame.K_a, pygame.K_d, pygame.K_j, pygame.K_w, pyga
 key_player_2 = [pygame.K_LEFT, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_KP1, pygame.K_UP, pygame.K_DOWN]
 screen_width, screen_height = (pygame.display.get_desktop_sizes()[0][0] - 100,
                                pygame.display.get_desktop_sizes()[0][1] - 100)
-screen = pygame.display.set_mode((screen_width, screen_height))
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.SRCALPHA)
 rect1 = pygame.Rect(0, 0, 100, 100)
 rect2 = pygame.Rect(0, 0, 100, 100)
 rect_background = pygame.Rect(0, 0, 300, 150)
